@@ -2,6 +2,7 @@ package pe.tasa.servicio;
 
 import pe.tasa.dao.*;
 import pe.tasa.modelo.*;
+import pe.tasa.util.EmailUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -65,6 +66,16 @@ public class PedidoServicio {
         System.out.println("✔ Pedido #" + pedido.getIdPedido() + " registrado.");
         System.out.println("  Empresa : " + empresa.get().getRazonSocial());
         System.out.println("  Total   : S/ " + total);
+
+        // ── Enviar correo automático a la empresa cuando se registra el pedido ──
+        EmailUtil.getInstancia().notificarPedidoRegistrado(
+                empresa.get().getCorreo(),
+                empresa.get().getRazonSocial(),
+                pedido.getIdPedido(),
+                total.toString(),
+                fechaEntrega != null ? fechaEntrega.toString() : "Por definir"
+        );
+
         return pedido;
     }
 
@@ -74,6 +85,20 @@ public class PedidoServicio {
                 idUsuario, "Pedido", "UPDATE",
                 "Pedido #" + idPedido + " → " + nuevoEstado
         ));
+
+        // ── Enviar correo automático cuando cambia el estado del pedido ──
+        Optional<Empresa> empresa = empresaDAO.buscarPorId(
+                pedidoDAO.buscarPorId(idPedido).get().getIdEmpresa()
+        );
+        empresa.ifPresent(e ->
+                EmailUtil.getInstancia().notificarCambioEstado(
+                        e.getCorreo(),
+                        e.getRazonSocial(),
+                        idPedido,
+                        nuevoEstado
+                )
+        );
+
         System.out.println("✔ Pedido #" + idPedido + " → " + nuevoEstado);
     }
 
