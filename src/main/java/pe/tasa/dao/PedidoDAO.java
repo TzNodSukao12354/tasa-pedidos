@@ -159,5 +159,40 @@ public class PedidoDAO implements DAO<Pedido, Integer> {
         Date fe = rs.getDate("fechaEntrega");
         if (fe != null) p.setFechaEntrega(fe.toLocalDate());
         return p;
+
+    }
+    public List<Pedido> listarPorUsuario(int idUsuario) throws Exception {
+        List<Pedido> lista = new ArrayList<>();
+        String sql = "SELECT p.*, e.razonSocial, u.nombre AS nombreUsuario " +
+                "FROM Pedido p " +
+                "JOIN Empresa e ON p.idEmpresa = e.idEmpresa " +
+                "JOIN Usuario u ON p.idUsuario = u.idUsuario " +
+                "WHERE p.idUsuario = ? AND p.estado != 'ANULADO' " +
+                "ORDER BY p.fechaPedido DESC";
+        try (PreparedStatement ps = getConexion().prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) lista.add(mapear(rs));
+            }
+        }
+        return lista;
+    }
+
+    public List<Pedido> listarPorUsuarioYEstado(int idUsuario, String estado) throws Exception {
+        List<Pedido> lista = new ArrayList<>();
+        String sql = "SELECT p.*, e.razonSocial, u.nombre AS nombreUsuario " +
+                "FROM Pedido p " +
+                "JOIN Empresa e ON p.idEmpresa = e.idEmpresa " +
+                "JOIN Usuario u ON p.idUsuario = u.idUsuario " +
+                "WHERE p.idUsuario = ? AND p.estado = ? " +
+                "ORDER BY p.fechaPedido DESC";
+        try (PreparedStatement ps = getConexion().prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            ps.setString(2, estado);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) lista.add(mapear(rs));
+            }
+        }
+        return lista;
     }
 }

@@ -11,7 +11,7 @@ public class Usuario {
     private String estado;
     private int idRol;
     private LocalDateTime fechaCreacion;
-
+    private int idEmpresa;
     // Objeto relacionado (no se mapea a columna, es para joins)
     private Rol rol;
 
@@ -27,6 +27,9 @@ public class Usuario {
         this.estado = estado;
         this.idRol = idRol;
     }
+
+    public int getIdEmpresa() { return idEmpresa; }
+    public void setIdEmpresa(int idEmpresa) { this.idEmpresa = idEmpresa; }
 
     public int getIdUsuario() { return idUsuario; }
     public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }

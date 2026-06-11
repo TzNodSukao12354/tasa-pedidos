@@ -99,6 +99,7 @@ public class UsuarioDAO implements DAO<Usuario, Integer> {
         u.setTelefono(rs.getString("telefono"));
         u.setEstado(rs.getString("estado"));
         u.setIdRol(rs.getInt("idRol"));
+        u.setIdEmpresa(rs.getInt("idEmpresa"));
         Timestamp ts = rs.getTimestamp("fechaCreacion");
         if (ts != null) u.setFechaCreacion(ts.toLocalDateTime());
         return u;

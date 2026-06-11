@@ -61,6 +61,18 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- JavaFX — interfaz gráfica -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>21</version>
+        </dependency>
+
     </dependencies>
 
     <!-- ══════════════════════════════════════════════
@@ -113,11 +125,14 @@
                 </executions>
             </plugin>
 
-            <!-- JUnit 5 con Maven -->
+            <!-- JavaFX plugin para ejecutar la aplicación -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>pe.tasa.vista.LoginApp</mainClass>
+                </configuration>
             </plugin>
 
         </plugins>
