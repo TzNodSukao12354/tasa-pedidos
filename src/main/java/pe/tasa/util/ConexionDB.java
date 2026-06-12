@@ -7,7 +7,25 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+/**
+ * <h2>ConexionDB</h2>
+ * Gestiona la conexión única a la base de datos PostgreSQL.
+ *
+ * <p>Implementa el patrón <strong>Singleton</strong> garantizando
+ * que solo existe una conexión activa en toda la aplicación.</p>
+ *
+ * <p>Las credenciales se leen desde el archivo {@code .env}
+ * nunca se escriben directamente en el código fuente.</p>
+ *
+ * <p>Ejemplo de uso:</p>
+ * <pre>{@code
+ * Connection con = ConexionDB.getInstancia().getConexion();
+ * }</pre>
+ *
+ * @author TASA
+ * @version 1.0
+ * @since 2026
+ */
 public class ConexionDB {
 
     private static final Logger LOG = Logger.getLogger(ConexionDB.class.getName());

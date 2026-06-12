@@ -9,6 +9,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * <h2>PedidoDAO</h2>
+ * Implementa el patrón DAO para la entidad {@link pe.tasa.modelo.Pedido}.
+ *
+ * <p>Gestiona todas las operaciones CRUD sobre la tabla
+ * {@code Pedido} en PostgreSQL.</p>
+ *
+ * <p>El método {@link #insertar(Pedido)} ejecuta una
+ * <strong>transacción atómica</strong> que guarda el pedido
+ * y todos sus detalles en una sola operación.</p>
+ *
+ * @author TASA
+ * @version 1.0
+ * @since 2026
+ */
 public class PedidoDAO implements DAO<Pedido, Integer> {
 
     private Connection getConexion() {

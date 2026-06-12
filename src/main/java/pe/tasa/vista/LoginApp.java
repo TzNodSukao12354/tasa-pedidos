@@ -14,6 +14,20 @@ import pe.tasa.modelo.Usuario;
 
 import java.util.Optional;
 
+/**
+ * <h2>LoginApp</h2>
+ * Pantalla de inicio de sesión del Sistema TASA.
+ *
+ * <p>Implementada con JavaFX. Verifica las credenciales
+ * del usuario contra la base de datos PostgreSQL.</p>
+ *
+ * <p>Al autenticarse correctamente redirige al
+ * {@link DashboardApp}.</p>
+ *
+ * @author TASA
+ * @version 1.0
+ * @since 2026
+ */
 public class LoginApp extends Application {
 
     @Override

@@ -8,6 +8,24 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * <h2>EmailUtil</h2>
+ * Utilidad para envío automático de correos con JavaMail API.
+ *
+ * <p>Implementa el patrón <strong>Singleton</strong>.
+ * Las credenciales SMTP se leen desde el archivo {@code .env}.</p>
+ *
+ * <p>Notificaciones disponibles:</p>
+ * <ul>
+ *   <li>Pedido registrado con detalle de productos</li>
+ *   <li>Cambio de estado del pedido</li>
+ *   <li>Bienvenida al registrarse</li>
+ * </ul>
+ *
+ * @author TASA
+ * @version 1.0
+ * @since 2026
+ */
 public class EmailUtil {
 
     private static final Logger LOG = Logger.getLogger(EmailUtil.class.getName());
