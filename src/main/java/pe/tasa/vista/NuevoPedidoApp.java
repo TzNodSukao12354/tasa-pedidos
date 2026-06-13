@@ -67,7 +67,6 @@ public class NuevoPedidoApp {
         Label lblEmpresaTitulo = new Label("Empresa Cliente");
         lblEmpresaTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 13));
 
-        // Cargar empresa del usuario automáticamente
         String nombreEmpresa = "No asignada";
         Empresa empresaUsuario = null;
         try {
@@ -82,7 +81,6 @@ public class NuevoPedidoApp {
             e.printStackTrace();
         }
 
-        // Mostrar empresa como label (no editable)
         Label lblEmpresaValor = new Label(nombreEmpresa);
         lblEmpresaValor.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         lblEmpresaValor.setTextFill(Color.valueOf("#1a237e"));
@@ -92,7 +90,7 @@ public class NuevoPedidoApp {
                         "-fx-background-radius: 5;");
         lblEmpresaValor.setMaxWidth(Double.MAX_VALUE);
 
-        // Fecha entrega
+        // ── Fecha entrega ─────────────────────────────
         Label lblFecha = new Label("Fecha de Entrega *");
         lblFecha.setFont(Font.font("Arial", FontWeight.BOLD, 13));
         DatePicker dateFecha = new DatePicker(LocalDate.now());
@@ -105,12 +103,38 @@ public class NuevoPedidoApp {
         });
         dateFecha.setPrefWidth(400);
 
-        // Observaciones
+        // ── Dirección de entrega ──────────────────────
+        Label lblDestino = new Label("Dirección de Entrega *");
+        lblDestino.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        TextField txtDestino = crearCampo("Ej: Av. Industrial 123, Chimbote");
+
+        // ── Zona de destino ───────────────────────────
+        Label lblZona = new Label("Zona de Destino *");
+        lblZona.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        ComboBox<String> cmbZona = new ComboBox<>();
+        cmbZona.getItems().addAll(
+                "Chimbote",
+                "Nuevo Chimbote",
+                "Trujillo",
+                "Samanco",
+                "Huacambo",
+                "Capellanía",
+                "Nepeña",
+                "San Jacinto",
+                "Moro",
+                "Jimbe"
+        );
+        cmbZona.setPromptText("Seleccione la zona de destino");
+        cmbZona.setPrefWidth(400);
+        cmbZona.setStyle("-fx-font-size: 13;");
+
+        // ── Observaciones ─────────────────────────────
         Label lblObs = new Label("Observaciones");
         lblObs.setFont(Font.font("Arial", FontWeight.BOLD, 13));
         TextArea txtObs = new TextArea();
-        txtObs.setPromptText("Notas adicionales...");
+        txtObs.setPromptText("Notas adicionales del pedido...");
         txtObs.setPrefHeight(60);
+        txtObs.setStyle("-fx-font-size: 13;");
 
         // ── Productos ─────────────────────────────────
         Label lblProductos = new Label("Selecciona los Productos *");
@@ -162,12 +186,12 @@ public class NuevoPedidoApp {
             e.printStackTrace();
         }
 
-        // Mensaje resultado
+        // ── Mensaje resultado ─────────────────────────
         Label lblMensaje = new Label("");
         lblMensaje.setFont(Font.font("Arial", FontWeight.BOLD, 13));
         lblMensaje.setWrapText(true);
 
-        // Botón registrar
+        // ── Botón registrar ───────────────────────────
         Button btnRegistrar = new Button("✔ REGISTRAR PEDIDO");
         btnRegistrar.setPrefHeight(45);
         btnRegistrar.setStyle(
@@ -183,6 +207,8 @@ public class NuevoPedidoApp {
         List<Producto> productosFinal = productos;
 
         btnRegistrar.setOnAction(e -> {
+
+            // Validaciones
             if (empresaFinal == null) {
                 lblMensaje.setTextFill(Color.RED);
                 lblMensaje.setText("✘ Tu usuario no tiene empresa asignada.");
@@ -191,6 +217,16 @@ public class NuevoPedidoApp {
             if (dateFecha.getValue() == null) {
                 lblMensaje.setTextFill(Color.RED);
                 lblMensaje.setText("✘ Selecciona una fecha de entrega.");
+                return;
+            }
+            if (txtDestino.getText().trim().isEmpty()) {
+                lblMensaje.setTextFill(Color.RED);
+                lblMensaje.setText("✘ Ingresa la dirección de entrega.");
+                return;
+            }
+            if (cmbZona.getValue() == null) {
+                lblMensaje.setTextFill(Color.RED);
+                lblMensaje.setText("✘ Selecciona la zona de destino.");
                 return;
             }
 
@@ -216,21 +252,30 @@ public class NuevoPedidoApp {
             }
 
             try {
+                // Construir observación con destino
+                String observacionCompleta =
+                        "Destino: " + txtDestino.getText().trim() +
+                                " — Zona: " + cmbZona.getValue() +
+                                (txtObs.getText().trim().isEmpty() ? "" :
+                                        " — Obs: " + txtObs.getText().trim());
+
                 PedidoServicio servicio = new PedidoServicio();
                 servicio.registrarPedido(
                         empresaFinal.getIdEmpresa(),
                         usuarioActual.getIdUsuario(),
                         dateFecha.getValue(),
                         items,
-                        txtObs.getText()
+                        observacionCompleta
                 );
 
                 lblMensaje.setTextFill(Color.GREEN);
-                lblMensaje.setText("✔ Pedido registrado. " +
+                lblMensaje.setText("✔ Pedido registrado exitosamente. " +
                         "Se envió correo de confirmación a " +
                         empresaFinal.getCorreo());
 
-                // Limpiar
+                // Limpiar formulario
+                txtDestino.clear();
+                cmbZona.getSelectionModel().clearSelection();
                 txtObs.clear();
                 for (HBox fila : filasProducto) {
                     CheckBox chk = (CheckBox) fila.getChildren().get(0);
@@ -251,10 +296,13 @@ public class NuevoPedidoApp {
         btnVolver.setOnAction(e ->
                 new DashboardApp(usuarioActual).show(stage));
 
+        // ── Agregar al formulario ─────────────────────
         formulario.getChildren().addAll(
                 lblEmpresaTitulo, lblEmpresaValor,
-                lblFecha, dateFecha,
-                lblObs, txtObs,
+                lblFecha,    dateFecha,
+                lblDestino,  txtDestino,
+                lblZona,     cmbZona,
+                lblObs,      txtObs,
                 new Separator(),
                 lblProductos, listaProductos,
                 lblMensaje,
@@ -263,6 +311,7 @@ public class NuevoPedidoApp {
 
         scroll.setContent(formulario);
 
+        // ── Layout principal ──────────────────────────
         VBox root = new VBox();
         root.getChildren().addAll(barraTop, scroll);
         VBox.setVgrow(scroll, Priority.ALWAYS);
@@ -271,5 +320,18 @@ public class NuevoPedidoApp {
         stage.setTitle("Sistema TASA — Nuevo Pedido");
         stage.setScene(scene);
         stage.show();
+    }
+
+    private TextField crearCampo(String placeholder) {
+        TextField tf = new TextField();
+        tf.setPromptText(placeholder);
+        tf.setStyle(
+                "-fx-padding: 10; " +
+                        "-fx-border-color: #cccccc; " +
+                        "-fx-font-size: 13; " +
+                        "-fx-background-radius: 5; " +
+                        "-fx-border-radius: 5;");
+        tf.setPrefHeight(38);
+        return tf;
     }
 }

@@ -12,10 +12,10 @@ import java.util.Optional;
 
 public class PedidoServicio {
 
-    private final PedidoDAO pedidoDAO         = new PedidoDAO();
-    private final ProductoDAO productoDAO     = new ProductoDAO();
-    private final EmpresaDAO empresaDAO       = new EmpresaDAO();
-    private final AuditoriaDAO auditoriaDAO   = new AuditoriaDAO();
+    private final PedidoDAO pedidoDAO       = new PedidoDAO();
+    private final ProductoDAO productoDAO   = new ProductoDAO();
+    private final EmpresaDAO empresaDAO     = new EmpresaDAO();
+    private final AuditoriaDAO auditoriaDAO = new AuditoriaDAO();
 
     public Pedido registrarPedido(int idEmpresa, int idUsuario,
                                   LocalDate fechaEntrega,
@@ -24,7 +24,8 @@ public class PedidoServicio {
 
         Optional<Empresa> empresa = empresaDAO.buscarPorId(idEmpresa);
         if (empresa.isEmpty()) {
-            throw new IllegalArgumentException("Empresa con ID " + idEmpresa + " no encontrada.");
+            throw new IllegalArgumentException(
+                    "Empresa con ID " + idEmpresa + " no encontrada.");
         }
 
         List<DetallePedido> detalles       = new ArrayList<>();
@@ -37,11 +38,13 @@ public class PedidoServicio {
 
             Optional<Producto> producto = productoDAO.buscarPorId(idProducto);
             if (producto.isEmpty()) {
-                throw new IllegalArgumentException("Producto ID " + idProducto + " no encontrado.");
+                throw new IllegalArgumentException(
+                        "Producto ID " + idProducto + " no encontrado.");
             }
 
             BigDecimal precioUnitario = producto.get().getPrecio();
-            BigDecimal subtotal = precioUnitario.multiply(BigDecimal.valueOf(cantidad));
+            BigDecimal subtotal = precioUnitario.multiply(
+                    BigDecimal.valueOf(cantidad));
 
             DetallePedido detalle = new DetallePedido();
             detalle.setIdProducto(idProducto);
@@ -67,14 +70,15 @@ public class PedidoServicio {
 
         auditoriaDAO.insertar(new Auditoria(
                 idUsuario, "Pedido", "INSERT",
-                "Pedido #" + pedido.getIdPedido() + " registrado. Total: S/ " + total
+                "Pedido #" + pedido.getIdPedido() +
+                        " registrado. Total: S/ " + total
         ));
 
         System.out.println("✔ Pedido #" + pedido.getIdPedido() + " registrado.");
         System.out.println("  Empresa : " + empresa.get().getRazonSocial());
         System.out.println("  Total   : S/ " + total);
 
-        // ── Enviar correo con detalle completo de productos ──
+        // ── Enviar correo con detalle completo + destino ──
         EmailUtil.getInstancia().notificarPedidoConDetalle(
                 empresa.get().getCorreo(),
                 empresa.get().getRazonSocial(),
@@ -82,13 +86,15 @@ public class PedidoServicio {
                 detalles,
                 productosFinal,
                 total.toString(),
-                fechaEntrega != null ? fechaEntrega.toString() : "Por definir"
+                fechaEntrega != null ? fechaEntrega.toString() : "Por definir",
+                observaciones != null ? observaciones : "Sin observaciones"
         );
 
         return pedido;
     }
 
-    public void cambiarEstado(int idPedido, String nuevoEstado, int idUsuario) throws Exception {
+    public void cambiarEstado(int idPedido, String nuevoEstado,
+                              int idUsuario) throws Exception {
         pedidoDAO.actualizarEstado(idPedido, nuevoEstado);
         auditoriaDAO.insertar(new Auditoria(
                 idUsuario, "Pedido", "UPDATE",

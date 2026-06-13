@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  *
  * <p>Notificaciones disponibles:</p>
  * <ul>
- *   <li>Pedido registrado con detalle de productos</li>
+ *   <li>Pedido registrado con detalle de productos y destino</li>
  *   <li>Cambio de estado del pedido</li>
  *   <li>Bienvenida al registrarse</li>
  * </ul>
@@ -111,7 +111,8 @@ public class EmailUtil {
             List<pe.tasa.modelo.DetallePedido> detalles,
             List<pe.tasa.modelo.Producto> productos,
             String total,
-            String fechaEntrega) {
+            String fechaEntrega,
+            String observaciones) {
 
         String asunto = "Pedido #" + idPedido + " registrado — Sistema TASA";
 
@@ -169,14 +170,27 @@ public class EmailUtil {
                         </tr>
                     </table>
                     <br/>
+                    <table style="border-collapse:collapse;width:100%%;">
+                        <tr style="background:#e3f2fd;">
+                            <td style="padding:8px;border:1px solid #ddd;width:40%%;"><strong>📍 Destino de entrega</strong></td>
+                            <td style="padding:8px;border:1px solid #ddd;">%s</td>
+                        </tr>
+                    </table>
+                    <br/>
                     <p style="color:orange;"><strong>Estado: PENDIENTE</strong></p>
-                    <p>Le notificaremos cuando su pedido sea despachado.</p>
+                    <p>Le notificaremos cuando su pedido sea confirmado y despachado.</p>
                     <hr/>
                     <small style="color:gray;">Mensaje automático — Sistema TASA</small>
                 </body>
                 </html>
-                """.formatted(razonSocial, idPedido, fechaEntrega,
-                filas.toString(), total);
+                """.formatted(
+                razonSocial,
+                idPedido,
+                fechaEntrega,
+                filas.toString(),
+                total,
+                observaciones
+        );
 
         enviar(correoEmpresa, asunto, cuerpo);
     }
