@@ -11,18 +11,10 @@ import java.util.Optional;
 
 /**
  * <h2>PedidoDAO</h2>
- * Implementa el patrón DAO para la entidad {@link pe.tasa.modelo.Pedido}.
- *
- * <p>Gestiona todas las operaciones CRUD sobre la tabla
- * {@code Pedido} en PostgreSQL.</p>
- *
- * <p>El método {@link #insertar(Pedido)} ejecuta una
- * <strong>transacción atómica</strong> que guarda el pedido
- * y todos sus detalles en una sola operación.</p>
+ * Implementa el patrón DAO para la entidad {@link Pedido}.
  *
  * @author TASA
  * @version 1.0
- * @since 2026
  */
 public class PedidoDAO implements DAO<Pedido, Integer> {
 
@@ -30,16 +22,11 @@ public class PedidoDAO implements DAO<Pedido, Integer> {
         return ConexionDB.getInstancia().getConexion();
     }
 
-    /**
-     * Inserta el pedido y todos sus detalles en una sola transacción.
-     * Si algo falla, se revierte todo.
-     */
     @Override
     public void insertar(Pedido p) throws Exception {
         ConexionDB db = ConexionDB.getInstancia();
         db.iniciarTransaccion();
         try {
-            // 1. Insertar cabecera del pedido
             String sqlPedido = "INSERT INTO Pedido (idEmpresa, idUsuario, fechaEntrega, estado, total, observaciones) " +
                     "VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement ps = getConexion().prepareStatement(sqlPedido, Statement.RETURN_GENERATED_KEYS)) {
@@ -55,11 +42,10 @@ public class PedidoDAO implements DAO<Pedido, Integer> {
                 }
             }
 
-            // 2. Insertar cada línea de detalle
             if (p.getDetalles() != null && !p.getDetalles().isEmpty()) {
                 String sqlDetalle = "INSERT INTO DetallePedido (idPedido, idProducto, cantidad, precioUnitario, subtotal) " +
                         "VALUES (?, ?, ?, ?, ?)";
-                try (PreparedStatement ps = getConexion().prepareStatement(sqlDetalle, Statement.RETURN_GENERATED_KEYS)) {
+                try (PreparedStatement ps = getConexion().prepareStatement(sqlDetalle)) {
                     for (DetallePedido d : p.getDetalles()) {
                         ps.setInt(1, p.getIdPedido());
                         ps.setInt(2, d.getIdProducto());
@@ -161,21 +147,6 @@ public class PedidoDAO implements DAO<Pedido, Integer> {
         return lista;
     }
 
-    private Pedido mapear(ResultSet rs) throws SQLException {
-        Pedido p = new Pedido();
-        p.setIdPedido(rs.getInt("idPedido"));
-        p.setIdEmpresa(rs.getInt("idEmpresa"));
-        p.setIdUsuario(rs.getInt("idUsuario"));
-        p.setEstado(rs.getString("estado"));
-        p.setTotal(rs.getBigDecimal("total"));
-        p.setObservaciones(rs.getString("observaciones"));
-        Timestamp ts = rs.getTimestamp("fechaPedido");
-        if (ts != null) p.setFechaPedido(ts.toLocalDateTime());
-        Date fe = rs.getDate("fechaEntrega");
-        if (fe != null) p.setFechaEntrega(fe.toLocalDate());
-        return p;
-
-    }
     public List<Pedido> listarPorUsuario(int idUsuario) throws Exception {
         List<Pedido> lista = new ArrayList<>();
         String sql = "SELECT p.*, e.razonSocial, u.nombre AS nombreUsuario " +
@@ -209,5 +180,33 @@ public class PedidoDAO implements DAO<Pedido, Integer> {
             }
         }
         return lista;
+    }
+
+    private Pedido mapear(ResultSet rs) throws SQLException {
+        Pedido p = new Pedido();
+        p.setIdPedido(rs.getInt("idPedido"));
+        p.setIdEmpresa(rs.getInt("idEmpresa"));
+        p.setIdUsuario(rs.getInt("idUsuario"));
+        p.setEstado(rs.getString("estado"));
+        p.setTotal(rs.getBigDecimal("total"));
+        p.setObservaciones(rs.getString("observaciones"));
+        Timestamp ts = rs.getTimestamp("fechaPedido");
+        if (ts != null) p.setFechaPedido(ts.toLocalDateTime());
+        Date fe = rs.getDate("fechaEntrega");
+        if (fe != null) p.setFechaEntrega(fe.toLocalDate());
+
+        // Datos del JOIN — nombre empresa y usuario
+        try {
+            pe.tasa.modelo.Empresa emp = new pe.tasa.modelo.Empresa();
+            emp.setRazonSocial(rs.getString("razonSocial"));
+            p.setEmpresa(emp);
+
+            pe.tasa.modelo.Usuario usr = new pe.tasa.modelo.Usuario();
+            usr.setNombre(rs.getString("nombreUsuario"));
+            p.setUsuario(usr);
+        } catch (SQLException ignored) {
+        }
+
+        return p;
     }
 }

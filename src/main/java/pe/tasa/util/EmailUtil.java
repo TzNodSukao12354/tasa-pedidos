@@ -12,19 +12,8 @@ import java.util.logging.Logger;
  * <h2>EmailUtil</h2>
  * Utilidad para envío automático de correos con JavaMail API.
  *
- * <p>Implementa el patrón <strong>Singleton</strong>.
- * Las credenciales SMTP se leen desde el archivo {@code .env}.</p>
- *
- * <p>Notificaciones disponibles:</p>
- * <ul>
- *   <li>Pedido registrado con detalle de productos y destino</li>
- *   <li>Cambio de estado del pedido</li>
- *   <li>Bienvenida al registrarse</li>
- * </ul>
- *
  * @author TASA
  * @version 1.0
- * @since 2026
  */
 public class EmailUtil {
 
@@ -190,6 +179,73 @@ public class EmailUtil {
                 filas.toString(),
                 total,
                 observaciones
+        );
+
+        enviar(correoEmpresa, asunto, cuerpo);
+    }
+
+    /**
+     * Notifica al cliente que su pedido fue despachado,
+     * incluyendo los detalles del chofer y vehículo asignado.
+     */
+    public void notificarDespacho(
+            String correoEmpresa,
+            String razonSocial,
+            int idPedido,
+            String nombreChofer,
+            String telefonoChofer,
+            String placaVehiculo,
+            String marcaVehiculo,
+            String zonaDestino,
+            String fechaSalida) {
+
+        String asunto = "Pedido #" + idPedido + " en camino — Sistema TASA";
+
+        String cuerpo = """
+                <html>
+                <body style="font-family:Arial,sans-serif;padding:20px;color:#333;">
+                    <h2 style="color:#1565c0;">🚚 Sistema TASA — Despacho</h2>
+                    <hr/>
+                    <p>Estimado cliente <strong>%s</strong>,</p>
+                    <p>Su pedido <strong>#%d</strong> ha sido despachado y está en camino.</p>
+
+                    <table style="border-collapse:collapse;width:100%%;">
+                        <tr style="background:#1565c0;color:white;">
+                            <td colspan="2" style="padding:10px;"><strong>Detalles del transporte</strong></td>
+                        </tr>
+                        <tr style="background:#f2f2f2;">
+                            <td style="padding:8px;border:1px solid #ddd;"><strong>Chofer</strong></td>
+                            <td style="padding:8px;border:1px solid #ddd;">%s</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:8px;border:1px solid #ddd;"><strong>Teléfono contacto</strong></td>
+                            <td style="padding:8px;border:1px solid #ddd;">%s</td>
+                        </tr>
+                        <tr style="background:#f2f2f2;">
+                            <td style="padding:8px;border:1px solid #ddd;"><strong>Vehículo</strong></td>
+                            <td style="padding:8px;border:1px solid #ddd;">%s (%s)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:8px;border:1px solid #ddd;"><strong>Zona destino</strong></td>
+                            <td style="padding:8px;border:1px solid #ddd;">%s</td>
+                        </tr>
+                        <tr style="background:#f2f2f2;">
+                            <td style="padding:8px;border:1px solid #ddd;"><strong>Fecha de salida</strong></td>
+                            <td style="padding:8px;border:1px solid #ddd;">%s</td>
+                        </tr>
+                    </table>
+                    <br/>
+                    <p style="color:#1565c0;"><strong>Estado: EN DESPACHO</strong></p>
+                    <p>Le notificaremos cuando el pedido sea entregado.</p>
+                    <hr/>
+                    <small style="color:gray;">Mensaje automático — Sistema TASA</small>
+                </body>
+                </html>
+                """.formatted(
+                razonSocial, idPedido,
+                nombreChofer, telefonoChofer,
+                placaVehiculo, marcaVehiculo,
+                zonaDestino, fechaSalida
         );
 
         enviar(correoEmpresa, asunto, cuerpo);

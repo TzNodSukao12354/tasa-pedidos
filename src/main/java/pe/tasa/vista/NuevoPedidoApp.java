@@ -60,6 +60,7 @@ public class NuevoPedidoApp {
         scroll.setStyle("-fx-background-color: #f5f5f5;");
 
         VBox formulario = new VBox(15);
+        formulario.setAlignment(Pos.CENTER_LEFT); // ✅ Alineado a la izquierda
         formulario.setPadding(new Insets(25, 30, 25, 30));
         formulario.setStyle("-fx-background-color: #f5f5f5;");
 
@@ -113,16 +114,8 @@ public class NuevoPedidoApp {
         lblZona.setFont(Font.font("Arial", FontWeight.BOLD, 13));
         ComboBox<String> cmbZona = new ComboBox<>();
         cmbZona.getItems().addAll(
-                "Chimbote",
-                "Nuevo Chimbote",
-                "Trujillo",
-                "Samanco",
-                "Huacambo",
-                "Capellanía",
-                "Nepeña",
-                "San Jacinto",
-                "Moro",
-                "Jimbe"
+                "Chimbote", "Nuevo Chimbote", "Trujillo", "Samanco",
+                "Huacambo", "Capellanía", "Nepeña", "San Jacinto", "Moro", "Jimbe"
         );
         cmbZona.setPromptText("Seleccione la zona de destino");
         cmbZona.setPrefWidth(400);
@@ -164,8 +157,7 @@ public class NuevoPedidoApp {
                 lblProd.setPrefWidth(220);
                 lblProd.setFont(Font.font("Arial", 13));
 
-                Label lblPrecio = new Label("S/ " + p.getPrecio() +
-                        " x " + p.getUnidadMedida());
+                Label lblPrecio = new Label("S/ " + p.getPrecio() + " x " + p.getUnidadMedida());
                 lblPrecio.setPrefWidth(160);
                 lblPrecio.setTextFill(Color.valueOf("#2e7d32"));
                 lblPrecio.setFont(Font.font("Arial", FontWeight.BOLD, 12));
@@ -193,6 +185,7 @@ public class NuevoPedidoApp {
 
         // ── Botón registrar ───────────────────────────
         Button btnRegistrar = new Button("✔ REGISTRAR PEDIDO");
+        btnRegistrar.setPrefWidth(250); // ✅ Ancho consistente y profesional
         btnRegistrar.setPrefHeight(45);
         btnRegistrar.setStyle(
                 "-fx-background-color: #2e7d32; " +
@@ -200,7 +193,7 @@ public class NuevoPedidoApp {
                         "-fx-font-size: 14; " +
                         "-fx-font-weight: bold; " +
                         "-fx-background-radius: 5; " +
-                        "-fx-padding: 10 30 10 30;");
+                        "-fx-padding: 10 20 10 20;");
 
         // ── Acción registrar ──────────────────────────
         Empresa empresaFinal = empresaUsuario;
@@ -236,8 +229,7 @@ public class NuevoPedidoApp {
                 HBox fila = filasProducto.get(i);
                 CheckBox chk = (CheckBox) fila.getChildren().get(0);
                 if (chk.isSelected()) {
-                    Spinner<Integer> spinner =
-                            (Spinner<Integer>) fila.getChildren().get(4);
+                    Spinner<Integer> spinner = (Spinner<Integer>) fila.getChildren().get(4);
                     items.add(new int[]{
                             productosFinal.get(i).getIdProducto(),
                             spinner.getValue()
@@ -280,8 +272,7 @@ public class NuevoPedidoApp {
                 for (HBox fila : filasProducto) {
                     CheckBox chk = (CheckBox) fila.getChildren().get(0);
                     chk.setSelected(false);
-                    Spinner<Integer> sp =
-                            (Spinner<Integer>) fila.getChildren().get(4);
+                    Spinner<Integer> sp = (Spinner<Integer>) fila.getChildren().get(4);
                     sp.setDisable(true);
                     sp.getValueFactory().setValue(1);
                 }
@@ -293,8 +284,7 @@ public class NuevoPedidoApp {
         });
 
         // ── Acción volver ─────────────────────────────
-        btnVolver.setOnAction(e ->
-                new DashboardApp(usuarioActual).show(stage));
+        btnVolver.setOnAction(e -> new DashboardApp(usuarioActual).show(stage));
 
         // ── Agregar al formulario ─────────────────────
         formulario.getChildren().addAll(
@@ -316,9 +306,12 @@ public class NuevoPedidoApp {
         root.getChildren().addAll(barraTop, scroll);
         VBox.setVgrow(scroll, Priority.ALWAYS);
 
-        Scene scene = new Scene(root, 760, 580);
+        // ✅ PANTALLA CENTRADA Y DE TAMAÑO FIJO (COMO EL LOGIN)
+        Scene scene = new Scene(root, 900, 600); // Tamaño estándar consistente
         stage.setTitle("Sistema TASA — Nuevo Pedido");
         stage.setScene(scene);
+        stage.centerOnScreen();       // ✅ Centra la ventana en la pantalla
+        stage.setResizable(false);    // ✅ Evita que el usuario cambie el tamaño
         stage.show();
     }
 

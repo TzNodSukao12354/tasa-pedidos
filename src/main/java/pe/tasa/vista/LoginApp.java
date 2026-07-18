@@ -22,7 +22,7 @@ import java.util.Optional;
  * del usuario contra la base de datos PostgreSQL.</p>
  *
  * <p>Al autenticarse correctamente redirige al
- * {@link DashboardApp}.</p>
+ * Dashboard correspondiente según el rol.</p>
  *
  * @author TASA
  * @version 1.0
@@ -131,9 +131,18 @@ public class LoginApp extends Application {
                 UsuarioDAO usuarioDAO = new UsuarioDAO();
                 Optional<Usuario> usuario = usuarioDAO.buscarPorCorreo(correo);
 
-                if (usuario.isPresent() &&
-                        usuario.get().getPassword().equals(password)) {
-                    new DashboardApp(usuario.get()).show(stage);
+                if (usuario.isPresent() && usuario.get().getPassword().equals(password)) {
+                    lblError.setTextFill(Color.GREEN);
+                    lblError.setText("✔ Bienvenido " + usuario.get().getNombre());
+
+                    int rol = usuario.get().getIdRol();
+
+                    switch (rol) {
+                        case 1 -> new DashboardAdminApp(usuario.get()).show(stage);
+                        case 3 -> new DashboardAlmacenApp(usuario.get()).show(stage);
+                        case 4 -> new DashboardChoferApp(usuario.get()).show(stage);
+                        default -> new DashboardApp(usuario.get()).show(stage);
+                    }
                 } else {
                     lblError.setTextFill(Color.RED);
                     lblError.setText("✘ Correo o contraseña incorrectos.");
@@ -165,7 +174,10 @@ public class LoginApp extends Application {
         Scene scene = new Scene(root, 760, 500);
         stage.setTitle("Sistema TASA — Login");
         stage.setScene(scene);
-        stage.setResizable(false);
+
+        // ✅ ESTAS DOS LÍNEAS SOLUCIONAN EL PROBLEMA DE POSICIÓN:
+        stage.centerOnScreen();       // ✅ Fuerza a que siempre se abra en el centro
+        stage.setResizable(false);    // ✅ Mantiene el tamaño fijo como el resto
         stage.show();
     }
 
